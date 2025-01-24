@@ -113,7 +113,8 @@ def preprocess_data(input_csv, doi_column, pmcid_column):
 
         # Step 3: Drop rows with missing or empty PMCIDs
         initial_count = len(df)
-        df = df[df[pmcid_column].notna() & (df[pmcid_column].str.strip() != "")]
+        df = df[df[pmcid_column].notna() & (df[pmcid_column].str.strip() != "")&
+                (df['Abstract'] != "") & df['Abstract'].notna()]]
         print(f"Dropped {initial_count - len(df)} rows with missing or empty '{pmcid_column}'.")
 
         # Step 4: Fetch XML files for PMCIDs
