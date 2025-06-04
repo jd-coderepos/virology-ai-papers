@@ -1,59 +1,102 @@
-# 🧬 Virology and Epidemiology AI Research Collection
+# 🦚 Virology-AI Papers: A Pipeline for Mining Deep Learning Research in Virology and Epidemiology
 
-This repository contains the dataset [`collection_with_abstracts.csv`](https://github.com/jd-coderepos/virology-ai-papers/blob/main/collection_with_abstracts.csv), compiled via queries issued to the [PubMed](https://pubmed.ncbi.nlm.nih.gov/) database. PubMed is one of the largest databases indexing publications in the Life Sciences.
+This repository provides a structured, four-step pipeline to **collect**, **filter**, **process**, and **annotate** scientific literature that applies deep learning and large language models (LLMs) to problems in virology and epidemiology. It integrates data from trusted sources like **PubMed**, **bioRxiv**, and **medRxiv**, with a strong focus on:
 
-## 🔬 Dataset Scope
+* Collecting metadata from scientific databases
+* Semantic filtering of results to ensure relevance
+* Extracting structured information using LLMs
+* Human validation and correction of the extracted data
 
-This dataset includes papers from PubMed that address problems in virology or epidemiology using deep learning neural network-based solutions. The dataset consists of 11,450 unique papers. For more detailed insights into the queries used to compile this collection, please view [this document](https://docs.google.com/document/d/1uMkXik3B3rNnKLbZc5AyqWruTGUKdpJcZFZZ4euM0Aw/edit?usp=sharing).
+This pipeline enables high-quality datasets that support downstream tasks such as biomedical NLP research, systematic review automation, and AI benchmarking.
 
-## 📑 Data Columns Description
+---
 
-Each row in the `collection_with_abstracts.csv` file corresponds to a unique academic paper, structured with the following columns:
+## 📂 Repository Structure
 
-- **PMID**: PubMed ID, a unique identifier for each publication.
-- **Title**: Title of the publication.
-- **Authors**: List of authors in the format `Last Name, First Initials`.
-- **Citation**: Citation details, typically including volume, issue, and pages.
-- **First Author**: The first listed author of the paper.
-- **Journal/Book**: The name of the journal or book in which the paper is published.
-- **Publication Year**: The year the paper was published.
-- **Create Date**: The date the record was created in PubMed.
-- **PMCID**: PubMed Central ID, linking to the full text of the article in the [PubMed Central](https://pmc.ncbi.nlm.nih.gov/) database. This field is optional and may not be present for all records.
-- **NIHMS ID**: NIH Manuscript Submission ID, used when a paper is included in NIH public access policy compliance. This field is optional and may not be present for all records.
-- **DOI**: Digital Object Identifier, providing a persistent link to its location on the internet. This field is optional and may not be present for all records.
-- **Abstract**: The abstract of the publication. This field is optional and may not be present for all records.
+The project is organized into the following modular steps:
 
-### ❗ Note on Optional Fields
+### 📁 Folder Overview
 
-Fields marked as "optional" may not be present for all records within the dataset. This indicates that certain information is not available or applicable for those specific entries.
+Each stage of the pipeline is organized into a dedicated folder:
 
-## 🌐 Accessing Full Texts
+| Folder Name                     | Description                                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `step_01_metadata_collection/`  | Scripts and outputs related to collecting metadata from PubMed, bioRxiv, and medRxiv.        |
+| `step_02_semantic_filtering/`   | Python scripts to semantically filter abstracts using sentence embeddings.                   |
+| `step_03_text_extraction_llm/`  | Code to extract and structure full-text data from PDFs or XMLs using OCR or parsing + LLaMA. |
+| `step_04_human_annotated_data/` | Ground-truth corrections and final structured data annotated by humans.                      |
 
-The PubMed Central (PMC) database, a subset of PubMed records, provides access to the full text of articles in XML format or other formats. Articles can be accessed via the API using the following URL: `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&id=[insert-pmcid-here]`, where `[insert-pmcid-here]` is to be replaced with the actual PMCID of the article.
+---
 
+### 🔹 Step 01 — Metadata Collection
 
-## 📘 bioRxiv and medRxiv Preprint Mining
+**Folder:** `step_01_metadata_collection/`
 
-In addition to the PubMed dataset, this repository includes a robust R-based pipeline for retrieving and processing preprints from bioRxiv and medRxiv, two leading preprint servers for biology and health sciences.
-This pipeline is powered by the medrxivr R package, which provides programmatic access to metadata from both servers.
-The scripts for this pipeline are located in the folder:
-📁 biorxiv_medrxiv_scraper/
+This step retrieves metadata and abstracts from **PubMed**, **bioRxiv**, and **medRxiv** using different tools:
 
-## 💻 Prerequisites
+* **PubMed**: Data is collected manually using the **PubMed web interface**.
+* **bioRxiv and medRxiv**: Metadata is retrieved using the R package [`medrxivr`](https://github.com/ropensci/medrxivr).
 
-Before running the scripts, make sure **R** and **RStudio** are installed on your system:
+All three sources use **the same keyword queries and topic filters** to ensure consistent data collection across repositories.
 
-### 1️⃣ Install R:
-- Visit: https://cran.r-project.org/
-- Click on your operating system (Windows, macOS, or Linux) and follow the installation instructions.
+📘 Metadata Details
 
-### 2️⃣ Install RStudio:
-- Visit: https://posit.co/download/rstudio-desktop/ 
-- Download the free **RStudio Desktop** version for your platform.
+PubMed Metadata Fields:
 
-## 🔧 R Package Dependencies
+PMID: PubMed ID, a unique identifier for each publication
 
-Install the required packages in RStudio by running:
+Title: Title of the publication
+
+Authors: List of authors in the format Last Name, First Initials
+
+Citation: Citation details, including volume, issue, and pages
+
+First Author: The first listed author
+
+Journal/Book: Name of the journal/book
+
+Publication Year: Year of publication
+
+Create Date: Date created in PubMed
+
+PMCID: PubMed Central ID
+
+NIHMS ID: NIH Manuscript Submission ID
+
+DOI: Digital Object Identifier
+
+Abstract: Abstract text
+
+bioRxiv / medRxiv Metadata Fields:
+
+Authors: List of authors
+
+Year of publication: Year when the article was posted
+
+Title of article: Title of the article
+
+category: Scientific category (e.g., Immunology, Epidemiology)
+
+date: Posting date on the preprint server
+
+Abstract: Article abstract
+
+doi: Digital Object Identifier for the article
+
+#### 📘 PubMed Metadata Collection
+
+Metadata from **PubMed** is collected via manual queries using the official PubMed web interface.
+
+* A full record of query construction and methodology is documented here: [Query Design Document](https://docs.google.com/document/d/1yesEbGY5eTAjBcC1-5acyT-5PVfLWwlI9ddLQpGUdnE/edit#heading=h.xxnjc2xkhm8n)
+
+#### 📋 Prerequisites for bioRxiv and medRxiv Scripts
+
+Before running the scripts, make sure R and RStudio are installed:
+
+1. **Install R**: [https://cran.r-project.org/](https://cran.r-project.org/)
+2. **Install RStudio**: [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
+
+**Install required R packages:**
 
 ```r
 install.packages("medrxivr")
@@ -62,122 +105,201 @@ install.packages("readxl")
 install.packages("writexl")
 ```
 
-Documentation for `medrxivr`:  
-- 📘 GitHub: https://github.com/ropensci/medrxivr  
-- 📘 Package Docs: https://docs.ropensci.org/medrxivr/
+#### ▶️ Script 1: `medrxiv_metadata_fetcher.R`
 
-## ▶️ How to Run the Script
+This script fetches metadata from **bioRxiv** or **medRxiv** using keyword lists and filters results by relevant scientific categories.
 
-You can run `medrxiv_metadata_fetcher.R` using either **RStudio** or the **R terminal**.
+**How to run:**
+
+```bash
+Rscript medrxiv_metadata_fetcher.R
+```
+
+Or provide full path:
+
+```bash
+Rscript "C:/Users/YourName/Desktop/project_folder/medrxiv_metadata_fetcher.R"
+```
+
+**What it does:**
+
+* Downloads metadata using `mx_api_content()` with user-defined date ranges and source
+* Saves raw data as `.rds` files
+* Executes topic-specific keyword searches via `query_list`
+* Filters by categories (e.g., Epidemiology, Immunology, Bioinformatics)
+* Extracts fields like title, authors, category, date, abstract, DOI
+* Adds derived fields like publication year and publication name
+* Outputs `.xlsx` files for each topic
+
+**Example output files:**
+
+* `virology-llm.xlsx`
+* `virology-transformer.xlsx`
+* `virology-deep-learning.xlsx`
+
+#### ▶️ Script 2: `aggregate_and_deduplicate_doi.R`
+
+This script consolidates topic-specific outputs and eliminates duplicates.
+
+**How to run:**
+
+```r
+folder_path <- "C:/Users/yourname/Desktop/bio_lib"
+```
+
+* Combines `.xlsx` files into one dataset
+* Identifies and logs duplicate DOIs to `duplicates_by_doi.xlsx`
+* Outputs cleaned dataset to `aggregated_deduplicated.xlsx`
+
+**Final Output:**
+
+* A single, deduplicated file containing metadata from all topic areas
+
+---
+
+### 🔹 Step 02 — Semantic Filtering
+
+**Folder:** `step_02_semantic_filtering/`
+
+This step applies embedding-based semantic filtering to refine the initial search results. It uses pretrained sentence transformers to evaluate the relevance of abstracts to the target domain.
+
+**Goals:**
+
+* Remove papers with irrelevant or ambiguous keyword matches
+* Prioritize highly relevant documents for LLM processing
+
+**Typical script(s):**
+
+* `semantic_filtering.py`
+
+**Dependencies:**
+
+* Python ≥ 3.7
+* `sentence-transformers`
+* `pandas`
+* `numpy`
+* `scikit-learn`
+
+**Installation:**
+
+```bash
+pip install sentence-transformers pandas numpy scikit-learn
+```
+
+**Suggested model:**
+
+* `all-MiniLM-L6-v2` from `sentence-transformers`
+
+**How to run:**
+
+```bash
+python semantic_filtering.py
+```
+
+---
+
+### 🔹 Step 03 — Text Extraction with LLM
+
+**Folder:** `step_03_text_extraction_llm/`
+
+This step uses a local large language model (LLaMA 3.2B via Ollama) to extract structured fields from full paper texts. The input can be either **PDF** (processed via OCR) or **XML** (parsed as plain text).
+
+**Goals:**
+
+* Process full text from PDFs or XMLs
+* Strip reference sections
+* Run LLM extraction of predefined fields from full text
+
+**Dependencies:**
+
+* Python ≥ 3.8
+* `pdf2image`
+* `pytesseract`
+* `ollama`
+* `pandas`
+* `re`, `json`, `logging`, `pathlib`
+
+**Installation:**
+
+```bash
+pip install pdf2image pytesseract ollama pandas
+```
+
+**System Requirements:**
+
+* [Poppler](https://github.com/oschwartz10612/poppler-windows) installed and added to PATH
+* [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) installed and accessible
+* Ollama installed and running LLaMA 3.2B locally
+
+**How to run:**
+
+```bash
+python Textextraction_performancemetrics_medrxiv.py
+python Textextraction_additionalfields_medrxiv.py
+```
+
+**Output:**
+
+* `Extracted_LLaMA_Output.csv`: Structured file with extracted fields from papers
+
+---
+
+### 🔹 Step 04 — Human Annotation
+
+**Folder:** `step_04_human_annotated_data/`
+
+This step includes manually reviewed or corrected outputs from the LLM extraction phase. It covers detailed validation and correction of the following structured fields:
+
+1. `research_aim`: The primary goal or aim of the research
+2. `research_problem`: The specific research problem addressed
+3. `ai_objective`: What AI is being used for in the research
+4. `ai_methodology`: A brief description of the AI-based approach used
+5. `ai_method_details`: Details on techniques, architectures, or models
+6. `ai_method_type`: The AI method(s) used (as a list if multiple)
+7. `type_of_underlying_data`: The raw input data used for experiments
+8. `dataset_name`: Name(s) of the dataset(s) used
+9. `disease_name`: Viral or infectious disease studied (list if multiple)
+10. `virology_subdomain`: Subfield of virology addressed
+11. `was_performance_measured`: Boolean flag
+12. `performance_results`: Summary of the results
+13. `performance_measurement_details`: Description of how performance was evaluated
+
+**Key contents:**
+
+* `Extracted_LLaMA_Output_biorxiv_groundtruth_tobecompleted.csv`
+
+**Purpose:**
+
+* Serve as ground truth for evaluation
+* Enable supervised fine-tuning or training of models
+
+---
+
+## 🚀 Getting Started
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/jd-coderepos/virology-ai-papers.git
+cd virology-ai-papers
+```
+
+2. Follow the instructions in each step's folder.
+
+3. Install required R and Python packages as outlined above.
+
+---
+
+## 🎓 Use Cases
+
+* Literature mining in virology and public health
+* Evaluation of LLM capabilities in scientific information extraction
+* Systematic review automation in life sciences
+
+---
+
+## 🌐 Citation
+
+If you use this dataset or codebase, please consider citing or referencing this repository in your work.
 
 
-### ✅ Steps:
-
-1. **Open your project or folder in RStudio**  
-   Make sure your R script (`medrxiv_metadata_fetcher.R`) is in the working directory (or note its full path).
-
-2. **Go to the Terminal tab in RStudio**  
-   - At the bottom pane of RStudio, click on the **“Terminal”** tab (next to “Console”).
-   - If the terminal is not open, go to:  
-     **Tools → Terminal → New Terminal**
-
-3. **Run the script**  
-   If your script is in the current directory:
-   ```Rscript medrxiv_metadata_fetcher.R```
-
-   If your script is elsewhere, provide the full path:
-   ```Rscript "C:/Users/YourName/Desktop/project_folder/medrxiv_metadata_fetcher.R"```
-
-
-## 📁 Script 1: `medrxiv_metadata_fetcher.R`
-
-This script fetches and filters preprint metadata from **bioRxiv** or **medRxiv**, based on topic-specific keyword searches, and saves the results as Excel files.
-
-### ✅ What the Script Does — Step by Step
-
-1. **Fetch metadata from bioRxiv or medRxiv**  
-   Metadata is downloaded using the `mx_api_content` function:
-   ```r
-   mx_api_content(from_date = "2015-01-01", to_date = "2025-04-13", server = "biorxiv")
-   ```
-   - To switch to **medRxiv**, change `server = "biorxiv"` to `server = "medrxiv"`.
-   - You can also change the date range by modifying `from_date` and `to_date`.
-
-2. **Save metadata locally as an `.rds` file**  
-   The downloaded data is saved as `biorxiv_metadata_2015_2025.rds` so the script doesn’t need to re-download it every time:
-   ```r
-   saveRDS(data_biorxiv, "biorxiv_metadata_2015_2025.rds")
-   ```
-
-3. **Run keyword-based queries**  
-   A list of topics is defined in `query_list`, where each topic maps to a list of related keywords.  
-   Example:
-   ```r
-   "virology-llm.csv" = list(
-     c("large language model", "LLM", "GPT", "BERT", "foundation model")
-   )
-   ```
-   
-   ⚠️ Important: If a keyword consists of multiple words, it must be enclosed in quotation marks to preserve the exact phrase during search.
-
-4. **Filter results by scientific category**  
-   After querying, results are filtered to include only papers in fields like:
-   - *Epidemiology*
-   - *Immunology*
-   - *Bioinformatics*, etc.
-
-   You can edit the `relevant_categories` vector in the script to change this.
-   For a complete list of available subject categories, refer to the bioRxiv Subject Collections page: 
-   https://www.biorxiv.org/collection
-
-5. **Extract and organize metadata from search results**  
-   For each query, the script pulls specific columns from the search results:
-   - `title` → Title of the article  
-   - `authors` → Author names  
-   - `category` → Subject category (e.g., Immunology)  
-   - `date` → Posting date  
-   - `abstract`, `doi` → Abstract and persistent link  
-   - The script also creates:
-     - `Year of publication` (extracted from the date)
-     - `Name of Publication/Journal` (based on category)
-
-   The selected metadata is cleaned and reordered:
-   ```r
-   select(
-     Authors, `Year of publication`, `Title of article`, `Name of Publication/Journal`,
-     title, authors, category, date, abstract, doi
-   )
-   ```
-
-6. **Export results to `.xlsx` files**  
-   Each topic defined in `query_list` produces a separate Excel file.
-   - The key `"virology-llm.csv"` results in an output named `virology-llm.xlsx`
-   - The `.csv` in the key name is just a label and **does not refer to any CSV files**
-
-   ✅ Example output files:
-   - `virology-llm.xlsx`
-   - `virology-transformer.xlsx`
-   - `virology-deep-learning.xlsx`
-
-## 📁 Script 2: `aggregate_and_deduplicate_doi.R`
-
-This script combines all topic-wise `.xlsx` files generated by the previous script and removes duplicate entries based on DOI to produce a single, clean dataset.
-
-### ✅ Step-by-Step Overview
-
-1. **Set the folder path**  
-   Define the path to the folder where all your `.xlsx` files are stored (e.g., `bio_lib`).  
-   ```r
-   folder_path <- "C:/Users/yourname/Desktop/bio_lib"
-   ```
-   > ⚠️ Make sure the folder path is correct, or the script won’t be able to find the files to process.
-
-2. **Combines them** into one dataset and tags each entry with its source file.
-3. **Detects and logs duplicate DOIs** into:
-   ```
-   duplicates_by_doi.xlsx
-   ```
-4. **Removes duplicates** and saves the cleaned metadata to:
-   ```
-   aggregated_deduplicated.xlsx
-   ```
